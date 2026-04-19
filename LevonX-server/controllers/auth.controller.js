@@ -1,6 +1,6 @@
-import { response } from "express";
-import { genToken } from "../configs/token";
-import { User } from "../models/User.model";
+
+import { genToken } from "../configs/token.js";
+import { User } from "../models/User.model.js";
 
 export const googleAuth=async(req,res)=>{
     try{
@@ -12,7 +12,7 @@ export const googleAuth=async(req,res)=>{
             })
         }
         let token=await genToken(user._id);
-        response.cookie("token",token,{
+        res.cookie("token",token,{
             httpOnly:true,
             secure:false,
             sameSite:"strict",
@@ -42,7 +42,7 @@ export const logOut=async(req,res)=>{
     }
     catch(error){
         return res.status(500).json({
-            message:`failed to logOut`;
+            message:`failed to logOut`
         })
 
     }

@@ -243,6 +243,24 @@ export const publishComponent = async (req, res) => {
     }
 
     // -----------------------------
+    // SETUP NPM AUTH & DEPENDENCIES
+    // -----------------------------
+    if (process.env.NPM_TOKEN) {
+      fs.writeFileSync(
+        path.join(libPath, ".npmrc"),
+        `//registry.npmjs.org/:_authToken=${process.env.NPM_TOKEN.trim()}\n`
+      );
+    }
+
+    if (!fs.existsSync(path.join(libPath, "node_modules"))) {
+      console.log("Installing library dependencies...");
+      execSync("npm install", {
+        cwd: libPath,
+        stdio: "pipe"
+      });
+    }
+
+    // -----------------------------
     // CLEAN OLD BUILD
     // -----------------------------
     console.log("Cleaning old build...");
@@ -260,7 +278,7 @@ export const publishComponent = async (req, res) => {
 
     execSync("npm run build", {
       cwd: libPath,
-      stdio: "inherit"
+      stdio: "pipe"
     });
 
     // -----------------------------
@@ -270,7 +288,7 @@ export const publishComponent = async (req, res) => {
 
     execSync("npm version patch --no-git-tag-version", {
       cwd: libPath,
-      stdio: "inherit"
+      stdio: "pipe"
     });
 
     // -----------------------------
@@ -280,7 +298,7 @@ export const publishComponent = async (req, res) => {
 
     execSync("npm publish --access public", {
       cwd: libPath,
-      stdio: "inherit"
+      stdio: "pipe"
     });
 
     // update component visibility
@@ -295,11 +313,12 @@ export const publishComponent = async (req, res) => {
 
   } catch (error) {
 
-    console.error("Publish Error:", error);
+    const errOutput = error.stderr ? error.stderr.toString() : (error.stdout ? error.stdout.toString() : error.message);
+    console.error("Publish Error:", errOutput);
 
     res.status(500).json({
       message: "Publish failed",
-      error: error.message
+      error: errOutput || error.message
     });
   }
 };

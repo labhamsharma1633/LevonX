@@ -3,27 +3,24 @@ import axios from "axios";
 export const askAI = async (messages) => {
   try {
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
-      throw new Error("Message array is empty");
+      throw new Error("Messages array is empty.");
     }
-
-    // console.log("API KEY:", process.env.OPENROUTER_API_KEY);
 
     const response = await axios.post(
       "https://openrouter.ai/api/v1/chat/completions",
       {
-        model: "deepseek/deepseek-chat", // only model changed
+       model: "deepseek/deepseek-chat",  // ← free DeepSeek V3
         messages: messages,
         temperature: 0.7,
         max_tokens: 2000,
-        response_format: {type: "json_object"}
+        response_format: { type: "json_object" }       // ← enforce JSON output
       },
       {
         headers: {
           Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
           "Content-Type": "application/json",
-          "HTTP-Referer": "http://localhost:5173",
-          "X-OpenRouter-Title": "levonX",
-        },
+          "X-Title": "Component Generator"
+        }
       }
     );
 
@@ -36,11 +33,7 @@ export const askAI = async (messages) => {
     return content;
 
   } catch (error) {
-    console.error("🔥 FULL ERROR:", error.response?.data || error.message);
-
-    throw new Error(
-      error.response?.data?.error?.message ||
-      "OpenRouter API Error"
-    );
+    console.error("OpenRouter Error:", error.response?.data || error.message);
+    throw new Error("OpenRouter API Error");
   }
 };

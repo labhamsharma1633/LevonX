@@ -1,13 +1,19 @@
-import express from "express"
-import isAuth from "../middleware/isAuth.js"
-import { getAllComponents, publishComponent, saveComponent } from "../controllers/component.controller.js"
-import { generateComponent } from "../controllers/aicomponent.controller.js"
+import express from "express";
+import isAuth from "../middlewares/isAuth.js";
+import { generateComponent, getAllComponents, publishComponent, saveComponent } from "../controllers/component.controller.js";
 
-const componentRouter=express.Router()
 
-componentRouter.post("/generate",isAuth,generateComponent)
-componentRouter.post("/save",isAuth,saveComponent);
-componentRouter.post("/publish",isAuth,publishComponent)
-componentRouter.get("/all-components",getAllComponents);
+const componentRouter = express.Router();
 
-export default componentRouter
+// AI generate component
+componentRouter.post("/generate", isAuth, generateComponent);
+
+// save component
+componentRouter.post("/save", isAuth, saveComponent);
+
+// publish component (admin only check controller में already है)
+componentRouter.post("/publish", isAuth, publishComponent);
+
+componentRouter.get("/all-components" , isAuth , getAllComponents)
+
+export default componentRouter;

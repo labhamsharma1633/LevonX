@@ -1,49 +1,45 @@
+import { genToken } from "../configs/token.js"
+import User from "../models/user.model.js"
 
-import { genToken } from "../configs/token.js";
-import { User } from "../models/User.model.js";
 
-export const googleAuth=async(req,res)=>{
-    try{
-        const {name,email}=req.body;
-        let user=await User.findOne({email});
+
+export const googleSignup = async (req,res) => {
+    try {
+        const {name , email} = req.body
+        let user= await User.findOne({email})
         if(!user){
-            user=await User.create({
-                name,email
-            })
+            user = await User.create({
+            name , email 
+        })
         }
-        let token=await genToken(user._id);
+        let token =await genToken(user._id)
+        const isProduction = process.env.NODE_ENV === "production";
         res.cookie("token",token,{
-            httpOnly:true,
-            secure:false,
-            sameSite:"lax",
-            maxAge:7*24*60*60*1000
+            httpOnly: true,
+            secure: isProduction,
+            sameSite: isProduction ? "none" : "lax",
+            maxAge: 7 * 24 * 60 * 60 * 1000
         })
-        return res.status(200).json(
-            user
-        )
+        return res.status(200).json(user)
 
+
+    } catch (error) {
+        console.log(error)
+         return res.status(500).json({message:`googleSignup  ${error}`})
     }
-    catch(error){
-        return res.status(500).json({
-            message:`google Auth error: ${error}`
-        })
-    }
+    
 }
-export const logOut=async(req,res)=>{
-    try{
-        await res.clearCookie("token",{
-            httpOnly:true,
-            secure:false,
-            sameSite:"lax"
-        })
-        return res.status(200).json({
-            message:"logOut Successfully"
-        })
-    }
-    catch(error){
-        return res.status(500).json({
-            message:`failed to logOut`
-        })
 
+export const logOut = async(req,res)=>{
+    try {
+        const isProduction = process.env.NODE_ENV === "production";
+        await res.clearCookie("token", {
+            httpOnly: true,
+            secure: isProduction,
+            sameSite: isProduction ? "none" : "lax",
+        })
+        return res.status(200).json({message:"logOut Successfully"})
+    } catch (error) {
+        return res.status(500).json({message:`logout Error ${error}`})
     }
 }

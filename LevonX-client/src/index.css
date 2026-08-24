@@ -1,7 +1,16 @@
 @import "tailwindcss";
+
+/* Hide scrollbar */
 ::-webkit-scrollbar {
-    display: none;
+  display: none;
 }
-*{
-    -ms-overflow-style:none;
+
+/* Firefox */
+* {
+  scrollbar-width: none;
+}
+
+/* IE / Edge */
+* {
+  -ms-overflow-style: none;
 }
